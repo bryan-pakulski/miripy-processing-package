@@ -1,4 +1,5 @@
 {
+    "project_name" : "",
     "output_directory" : "",
-    "project_directory" : ""
+    "working_directory" : ""
 }
