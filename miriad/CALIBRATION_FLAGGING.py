@@ -19,8 +19,6 @@ class BCF():
             "options":"birdie,rfiflag,noauto,xycorr"
         })
 
-
-
 # Contains more advanced calibration methods
 class ACF():
 
