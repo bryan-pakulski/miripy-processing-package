@@ -1,5 +1,7 @@
 import os, json
 
+from . import *
+
 class menu():
 
     def __init__(self, setting_location):
@@ -35,12 +37,28 @@ class menu():
             wrk_dir = input("Enter project folder location: ")
         
             # Create folder with project code
-            output_dir = wrk_dir + "/" + project_name + "/"
+            output_dir = wrk_dir + project_name + "/"
             os.mkdir(output_dir)
 
             # Update settings and save to file
             self.SETTINGS["project_name"] = project_name
             self.SETTINGS["working_directory"] = output_dir
+
+            input_file = input("Enter path of input dataset: ")
+            # Generate miriad project UV object and split
+            miriad_command(
+            "atlod",
+            {
+                "in" : input_file,
+                "out" : self.SETTINGS["working_directory"] + self.SETTINGS["project_name"] + ".uv",
+                "ifsel" : "1",
+                "options" : "birdie,rfiflag,noauto,xycorr"
+            })
+            miriad_command(
+            "uvsplit",
+            {
+                "vis" : self.SETTINGS["working_directory"] + self.SETTINGS["project_name"] + ".uv"
+            })
         
         # Select a different project
         else:
