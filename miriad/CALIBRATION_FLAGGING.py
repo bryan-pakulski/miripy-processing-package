@@ -20,17 +20,10 @@ class BCF():
         self.SECONDARY_CAL = calibration_selection[ input("Enter selection of secondary calibration dataset: ") ]
         self.IMAGE_DATA = calibration_selection[ input("Enter selection of imaging dataset: ") ]
 
-    def process(self, dataset):
-        print("Processing")
+    def process(self):
+        print("Beginning calibration")
 
-        miriad_command(
-        "atlod",
-        {
-            "in": "input_file",
-            "out": "output" + ".uv",
-            "ifsel":"1",
-            "options":"birdie,rfiflag,noauto,xycorr"
-        })
+        # Run miriad commands here
 
 # Contains more advanced calibration methods
 class ACF():

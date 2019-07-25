@@ -29,12 +29,14 @@ while (1):
         else:
             cf = M_CD.ACF(main_menu.SETTINGS)
 
+        cf.process()
 
-    elif (choice == "5"):
+
+    elif (choice == "4"):
         cmd = main_menu.manual_command()
         miriad_command(cmd[0], cmd[1])
 
-    elif (choice == "6"):
+    elif (choice == "5"):
         break
     
     else:

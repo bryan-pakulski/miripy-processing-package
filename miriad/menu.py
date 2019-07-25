@@ -4,6 +4,7 @@ from . import *
 
 class menu():
 
+
     def __init__(self, setting_location):
         print("Initialised main menu")
         self.SETTINGS_LOCATION = setting_location
@@ -20,11 +21,46 @@ class menu():
             self.update_settings()
             self.save_settings()
 
+
     def save_settings(self):
         with open(self.SETTINGS_LOCATION, 'w') as f:
-                json.dump(self.SETTINGS, f)
+            json.dump(self.SETTINGS, f)
 
+
+    # Initialise miriad project, create UV object, flag RFI, split channels
+    def initialise_project(self, input_file):
+        
+        # Load data
+        miriad_command(
+        "atlod",
+        {
+            "in" : input_file,
+            "out" : self.SETTINGS["working_directory"] + self.SETTINGS["project_name"] + ".uv",
+            "ifsel" : "1",
+            "options" : "birdie,rfiflag,noauto,xycorr"
+        })
+
+        # Flag RFI
+        edge = input("Enter edge value for RFI flagging, see miriad help on uvflag for more info: ")
+        miriad_command(
+        "uvflag",
+        {
+            "vis" : self.SETTINGS["project_name"] + ".uv",
+            "edge" : edge,
+            "flagval" : "flag"
+        })
+
+        # Split channels
+        cwd = os.getcwd()
+        os.chdir(self.SETTINGS["working_directory"])
+        miriad_command(
+        "uvsplit",
+        {
+            "vis" : self.SETTINGS["project_name"] + ".uv"
+        })
+        os.chdir(cwd)
     
+
     def update_settings(self):
         selection = ""
         
@@ -45,20 +81,8 @@ class menu():
             self.SETTINGS["working_directory"] = output_dir
 
             input_file = input("Enter path of input dataset: ")
-            # Generate miriad project UV object and split
-            miriad_command(
-            "atlod",
-            {
-                "in" : input_file,
-                "out" : self.SETTINGS["working_directory"] + self.SETTINGS["project_name"] + ".uv",
-                "ifsel" : "1",
-                "options" : "birdie,rfiflag,noauto,xycorr"
-            })
-            miriad_command(
-            "uvsplit",
-            {
-                "vis" : self.SETTINGS["working_directory"] + self.SETTINGS["project_name"] + ".uv"
-            })
+
+            self.initialise_project(input_file)
         
         # Select a different project
         else:
@@ -69,15 +93,7 @@ class menu():
             self.SETTINGS["working_directory"] = wrk_dir
             self.save_settings()
 
-    def print_working_dir(self):
-        pass
 
-    def calibration(self):
-        pass
-
-    def imaging(self):
-        pass
-    
     # Returns command and options to pass through to miriad
     def manual_command(self):
 
