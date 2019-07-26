@@ -22,7 +22,7 @@ while (1):
 		fc = ""
 
 		while (fc != "0" and fc != "1"):
-			fc = input("Begin Basic Calibration (0) or Advanced Calibration (1): ")
+			fc = input("(0) Begin Basic Calibration or (1) Advanced Calibration: ")
 		
 		if (fc == "0"):
 			cf = M_CF.BCF(main_menu.SETTINGS)

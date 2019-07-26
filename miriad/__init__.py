@@ -1,3 +1,4 @@
+import os, sys
 import subprocess
 
 # Performs a basic miriad command
