@@ -128,6 +128,9 @@ class BCF():
 			"device" : "/xs"
 		})
 
+
+		input("Enter to continue")
+
 		# Copy data to secondary cal
 		miriad_command(
 		"gpcopy",
