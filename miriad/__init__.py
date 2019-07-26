@@ -1,11 +1,13 @@
-import os, sys
+import subprocess
 
 # Performs a basic miriad command
 def miriad_command(command, parameters):
-	cmd = command + " "
+	options = []
+
+	options.append(command)
 
 	for key in parameters.keys():
-		cmd += key + "=" + parameters[key] + " "
+		options.append(key + "=" + parameters[key])
 
-	print("Running miriad command: ", cmd)
-	os.system(cmd)
+	print("Running miriad command: ", options)
+	subprocess.call(options)
