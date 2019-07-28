@@ -195,10 +195,18 @@ class BCF():
 		})
 		print("Scaling values for each individual bin should be ~0.95")
 
-	# Imaging phase
-	def imaging(self):
-		pass
+		# Copy valiues from phase calibrator to source image
+		miriad_command(
+		"gpcopy",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.SECONDARY_CAL,
+			"out" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
+		})
 
+		print("Calibration Complete with the following: ")
+		print("Bandpass / Flux calibration completed in primary: ", self.PRIMARY_CAL)
+		print("Phase calibration completed in secondary: ", self.SECONDARY_CAL)
+		print("Imaging prepared for: ", self.IMAGE_DATA)
 
 # Contains more advanced calibration methods
 class ACF():
