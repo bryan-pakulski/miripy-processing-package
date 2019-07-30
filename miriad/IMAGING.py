@@ -7,7 +7,7 @@ class BIM():
 
 		self.SETTINGS = settings
 
-		print("Initialising basic calibration flagging")
+		print("Initialising basic imaging")
 		
 		# Select calibration datasets
 		calibration_selection = {}
@@ -29,7 +29,7 @@ class BIM():
 		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-B_IMAGE-" + str(i) + "/"
 		os.mkdir(self.IMAGE_OUTPUT)
 
-	def process():
+	def process(self):
 		pass
 
 # Advanced imaging class
@@ -39,7 +39,7 @@ class AIM():
 
 		self.SETTINGS = settings
 
-		print("Initialising basic calibration flagging")
+		print("Initialising advanced imaging")
 		
 		# Select calibration datasets
 		calibration_selection = {}
@@ -53,5 +53,5 @@ class AIM():
 
 		self.IMAGE_DATA = calibration_selection[ input("Enter selection of prepared imaging dataset: ") ]
 
-	def process():
+	def process(self):
 		pass
