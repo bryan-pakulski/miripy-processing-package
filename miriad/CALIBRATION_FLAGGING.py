@@ -28,6 +28,81 @@ class BCF(FLAGGING.FLAGGING):
 	def process(self):
 		self.bandpass_flux_calibration()
 		self.phase_calibration()
+		self.image_calibration()
+
+	# Calibration / Cleaning in preperation for imaging
+	def image_calibration(self):
+
+		print("Preparing for imaging")
+
+		# Create subfolder for imaging, increment ID by + 1 if another folder exists
+		i = 0
+		while os.path.exists(self.IMAGE_DATA+"-BIMG-%s" % i):
+			i += 1
+
+		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-BIMG-" + str(i) + "/"
+		os.mkdir(self.IMAGE_OUTPUT)
+		
+		# Average gain solutions
+		interval = input("Enter minute interval of phase calibration used again average gain for imaging: ")
+		miriad_command(
+		"gpaver",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
+			"interval" : interval
+		})
+
+		# Remove basic RFI
+		print("Removing RFI")
+
+		stage = 1
+		while (1):
+
+			# Preview data
+			miriad_command(
+			"uvspec",
+			{
+				"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
+				"stokes": "xx,yy",
+				"axis" : "chan,amp",
+				"device" : "/xs"
+			})
+
+			in_str = "Perform pass " + str(stage) + " of calibration? (0) yes - (1) no "
+			lp = ""
+			
+			while (lp != "0" and lp != "1"):
+				lp = input(in_str)
+
+			# Exit calibration
+			if (lp == "1"):
+				break
+
+			# Perform another flagging pass
+			elif (lp == "0"):
+				self.basic_flagging(self.SETTINGS["working_directory"] + self.IMAGE_DATA)
+				stage += 1
+		
+		# Apply calibration and save to output data
+		print("Applying calibration to image data")
+		miriad_command(
+		"uvaver",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
+			"out" : self.IMAGE_OUTPUT + "img.uvav"
+		})
+
+		# Split channels
+		cwd = os.getcwd()
+		os.chdir(self.IMAGE_OUTPUT)
+		maxwidth = input("Enter max imaging bandwidth per dataset (in Ghz i.e. 0.512): ")
+		miriad_command(
+		"uvsplit",
+		{
+			"vis" : "img.uvav",
+			"maxwidth" : maxwidth
+		})
+		os.chdir(cwd)
 	
 	# Calibration of bandpass / flux channels
 	def bandpass_flux_calibration(self):

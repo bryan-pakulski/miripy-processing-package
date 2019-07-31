@@ -1,6 +1,9 @@
 from . import *
 from . import FLAGGING
 
+# Exception class for nested while escape
+class QUIT( Exception ): pass
+
 # Basic imaging class
 class BIM(FLAGGING.FLAGGING):
 
@@ -21,80 +24,105 @@ class BIM(FLAGGING.FLAGGING):
 
 		print(calibration_selection)
 
-		self.IMAGE_DATA = calibration_selection[ input("Enter selection of imaging dataset: ") ]
-
-		# Create subfolder for imaging, increment ID by + 1 if another folder exists
-		i = 0
-		while os.path.exists(self.IMAGE_DATA+"-B_IMAGE-%s" % i):
-			i += 1
-		
-		self.IMAGE_OUTPUT =  self.IMAGE_OUTPUT + self.IMAGE_DATA + "-B_IMAGE-" + str(i) + "/"
-		os.mkdir(self.IMAGE_OUTPUT)
+		self.IMAGE_OUTPUT =  self.IMAGE_OUTPUT + calibration_selection[ input("Enter selection of imaging output_folder (BIMG-X): ") ]
 
 	def process(self):
 		
-		# Average gain solutions
-		interval = input("Enter minute interval of phase calibration used again average gain for imaging: ")
-		miriad_command(
-		"gpaver",
-		{
-			"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
-			"interval" : interval
-		})
-
-		# Remove basic RFI
-		print("Removing RFI")
-
-		stage = 1
-		while (1):
-
-			# Preview data
-			miriad_command(
-			"uvspec",
-			{
-				"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
-				"stokes": "xx,yy",
-				"axis" : "chan,amp",
-				"device" : "/xs"
-			})
-
-			in_str = "Perform pass " + str(stage) + " of calibration? (0) yes - (1) no "
-			lp = ""
+		while(1):
 			
-			while (lp != "0" and lp != "1"):
-				lp = input(in_str)
+			# Select frequency to image
+			image_choice = ""
+			
+			i = 0
+			image_selection = {}
+			for f in os.listdir(self.IMAGE_OUTPUT):
+				image_selection[str(i)] = f
+				i += 1
 
-			# Exit calibration
-			if (lp == "1"):
+			print(image_selection)
+
+			try:
+				while (image_choice == ""):
+					image_choice = input("Enter frequency range to image, qqq to quit: ")
+
+					if (image_choice == "qqq"):
+						raise QUIT
+					else:
+						self.IMAGE_CHOICE = self.IMAGE_OUTPUT + "/" + image_selection[image_choice] 
+						self.IMAGE_MAP = self.IMAGE_CHOICE + ".imap"
+						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".ibeam"
+						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".imodel"
+						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".irestor"
+
+			except QUIT:
 				break
 
-			# Perform another flagging pass
-			elif (lp == "0"):
-				self.basic_flagging(self.SETTINGS["working_directory"] + self.IMAGE_DATA)
-				stage += 1
-		
-		# Apply calibration and save to output data
-		print("Applying calibration to image data")
-		miriad_command(
-		"uvaver",
-		{
-			"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
-			"out" : self.IMAGE_OUTPUT + self.IMAGE_DATA + ".uvaver"
-		})
+			# Create dirty map / dirty synthesized beam
+			print("Creating dirty map/beam for frequency: " + image_choice)
+			robust = input("Enter a robust value between -2 (Sensitivity) and 2 (Resolution): ")
+			miriad_command(
+			"invert",
+			{
+				"vis" : self.IMAGE_CHOICE,
+				"map" : self.IMAGE_MAP,
+				"beam" : self.IMAGE_BEAM,
+				"robust" : robust,
+				"stokes" : "i",
+				"options" : "mfs,double"
+			})
 
-		# Split channels
-		cwd = os.getcwd()
-		os.chdir(self.IMAGE_OUTPUT)
-		maxwidth = input("Enter max imaging bandwidth per dataset (in Ghz i.e. 0.512): ")
-		miriad_command(
-		"uvsplit",
-		{
-			"vis" : self.IMAGE_OUTPUT + self.IMAGE_DATA + ".uvaver",
-			"maxwidth" : maxwidth
-		})
-		os.chdir(cwd)
+			# Create preview of dirty map
+			print("Previewing dirty map")
+			miriad_command(
+			"cgdisp",
+			{
+				"in" : self.IMAGE_MAP,
+				"type" : "p",
+				"device" : "/xs",
+				"labtyp" : "hms,dms",
+				"options" : "wedge"
+			})
+			input("Press Enter to continue")
 
-		# Output each of the created channels
+			# Clean image
+			print("Cleaning image")
+			cutoff = input("Enter cutoff for abs value of amplitude (i.e. 5e-5): ")
+			niters = input("Number of iterations: ")
+			miriad_command(
+			"clean",
+			{
+				"map" : self.IMAGE_MAP,
+				"beam" : self.IMAGE_BEAM,
+				"out" : self.IMAGE_MODEL,
+				"options" : "negstop,positive",
+				"cutoff" : cutoff,
+				"niters" : niters
+			})
+
+			# Create image from model
+			miriad_command(
+			"restor",
+			{
+				"model" : self.IMAGE_MODEL,
+				"beam" : self.IMAGE_BEAM,
+				"map" : self.IMAGE_MAP,
+				"out" : self.IMAGE_RESTOR
+			})
+
+			# Display newly cleaned image
+			print("Previewing cleaned image")
+			miriad_command(
+			"cgdisp",
+			{
+				"in" : self.IMAGE_RESTOR,
+				"type" : "p",
+				"device" : "/xs",
+				"labtyp" : "hms,dms",
+				"range" : "0,0,log",
+				"options" : "wedge"
+			})
+			input("")
+
 
 
 # Advanced imaging class

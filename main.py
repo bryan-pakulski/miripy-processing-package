@@ -10,7 +10,7 @@ main_menu = menu.menu("settings.json")
 # Main menu loop
 while (1):
 	working_string = "(" + main_menu.SETTINGS['project_name'] + ") :: "
-	choice = input("(1) Settings - (2) Print working Dir - (3) Calibration - (4) Imaging- (5) Manual Command - (6) Exit \n" + working_string)
+	choice = input("(1) Settings - (2) Print working Dir - (3) Calibration - (4) Imaging - (5) Manual Command - (6) Exit \n" + working_string)
 
 	if (choice == "1"):
 		main_menu.update_settings()
@@ -37,7 +37,7 @@ while (1):
 		fc = ""
 
 		while (fc != "0" and fc != "1"):
-			fc = input("(0) Begin Basic Calibration or (1) Advanced Calibration: ")
+			fc = input("(0) Begin Basic Imaging or (1) Advanced Imaging: ")
 		
 		if (fc == "0"):
 			im = IM.BIM(main_menu.SETTINGS)
