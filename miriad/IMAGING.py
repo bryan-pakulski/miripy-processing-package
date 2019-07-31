@@ -80,7 +80,7 @@ class BIM(FLAGGING.FLAGGING):
 				"type" : "p",
 				"device" : "/xs",
 				"labtyp" : "hms,dms",
-				"options" : "wedge"
+				"options" : "grid,wedge"
 			})
 			input("Press Enter to continue")
 
@@ -118,8 +118,8 @@ class BIM(FLAGGING.FLAGGING):
 				"type" : "p",
 				"device" : "/xs",
 				"labtyp" : "hms,dms",
-				"range" : "0,0,log",
-				"options" : "wedge"
+				"range" : "0,40,log,2",
+				"options" : "grid,wedge"
 			})
 			input("")
 
