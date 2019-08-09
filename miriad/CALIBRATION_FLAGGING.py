@@ -204,6 +204,14 @@ class BCF(FLAGGING.FLAGGING):
 
 			# Perform another flagging pass
 			elif (lp == "0"):
+				# Determine bandpass shape
+				print("Determining bandpass shape")
+				miriad_command(
+				"mfcal",
+				{
+					"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL
+				})
+				
 				self.basic_flagging(self.SETTINGS["working_directory"] + self.PRIMARY_CAL)
 				stage += 1
 			

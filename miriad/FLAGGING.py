@@ -8,14 +8,6 @@ class FLAGGING():
 	# Basic RFI flagging steps for calibration
 	def basic_flagging(self, vis_source):
 
-		# Determine bandpass shape
-		print("Determining bandpass shape")
-		miriad_command(
-		"mfcal",
-		{
-			"vis" : vis_source
-		})
-
 		# Flag RFI
 		miriad_command(
 		"pgflag",
@@ -23,7 +15,7 @@ class FLAGGING():
 			"vis" : vis_source,
 			"stokes" : "xx,yy",
 			"device" : "/xs",
-			#"command" : "<b",
+			"command" : "<b",
 			"options" : "nodisp"
 		})
 
@@ -33,7 +25,7 @@ class FLAGGING():
 			"vis" : vis_source,
 			"stokes" : "yy,xx",
 			"device" : "/xs",
-			#"command" : "<b",
+			"command" : "<b",
 			"options" : "nodisp"
 		})
 
