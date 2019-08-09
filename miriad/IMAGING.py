@@ -63,6 +63,8 @@ class BIM(FLAGGING.FLAGGING):
 				region_x2 = inc
 				region_y2 = inc
 
+				region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
+				
 				self.cgdisp(region, col)
 
 				print("Entering interactive mode, arrows keys to navigate, q to exit")
@@ -74,33 +76,34 @@ class BIM(FLAGGING.FLAGGING):
 
 				while (1):
 					
-					direction = input("(qqq to quit): ")
-
-					if (direction == "qqq"):
+					direction = screen.getch()
+					if direction == ord('q'): 
 						break
 
-					# UP
-					if direction == "\x1b[A":
+					elif direction == curses.KEY_UP:
 						region_y1 += inc
 						region_y2 += inc
 
-					# DOWN
-					elif direction == "\x1b[B":
+					elif direction == curses.KEY_DOWN:
 						region_y1 -= inc
 						region_y2 -= inc
 
-					# RIGHT
-					elif direction == "\x1b[C":
+					elif direction == curses.KEY_RIGHT:
 						region_x1 += inc
 						region_x2 += inc
 
-					# LEFT
-					elif direction == "\x1b[D":
+					elif direction == curses.KEY_LEFT:
 						region_x1 -= inc
 						region_x2 -= inc
 
 					region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
 					self.cgdisp(region, col)
+				
+				# shut curses down cleanly
+				curses.nocbreak()
+				screen.keypad(0)
+				curses.echo()
+				curses.endwin()
 
 			# Manual region selection		
 			if (im == "0"):
