@@ -55,16 +55,17 @@ class BIM(FLAGGING.FLAGGING):
 			# Interactive imaging
 			if (im == "1"):
 
-				inc = int(input("Select increment size (500): "))
+				img_size = int(input("Select image size (500): "))
+				inc = int(input("Select increment size (50): "))
 				col = input("select color display (miriad -> cgdisp -> range): ")
 
 				region_x1 = 0
 				region_y1 = 0
-				region_x2 = inc
-				region_y2 = inc
+				region_x2 = img_size
+				region_y2 = img_size
 
 				region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
-				
+
 				self.cgdisp(region, col)
 
 				print("Entering interactive mode, arrows keys to navigate, q to exit")
@@ -95,6 +96,16 @@ class BIM(FLAGGING.FLAGGING):
 					elif direction == curses.KEY_LEFT:
 						region_x1 -= inc
 						region_x2 -= inc
+
+					# Boundary definitions
+					if region_x1 < 0:
+						region_x1 = 0
+					if region_x2 < 0:
+						region_x2 = 0
+					if region_y1 < 0:
+						region_y1 = 0
+					if region_y2 < 0:
+						region_y1 = 0
 
 					region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
 					self.cgdisp(region, col)
