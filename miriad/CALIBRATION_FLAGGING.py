@@ -30,7 +30,7 @@ class BCF(FLAGGING.FLAGGING):
 		self.phase_calibration()
 		self.image_calibration()
 
-	# Calibration / Cleaning in preperation for imaging
+	# Calibration / Cleaning in preperation for imaging (Stage 3)
 	def image_calibration(self):
 
 		print("Preparing for imaging")
@@ -82,7 +82,7 @@ class BCF(FLAGGING.FLAGGING):
 			elif (lp == "0"):
 				self.basic_flagging(self.SETTINGS["working_directory"] + self.IMAGE_DATA)
 				stage += 1
-		
+
 		# Apply calibration and save to output data
 		print("Applying calibration to image data")
 		miriad_command(
@@ -105,76 +105,7 @@ class BCF(FLAGGING.FLAGGING):
 		})
 		os.chdir(cwd)
 	
-	# Calibration of bandpass / flux channels
-	def bandpass_flux_calibration(self):
-
-		print("Beginning bandpass / flux calibration")
-
-		stage = 1
-		while (1):
-
-			# Preview data
-			miriad_command(
-			"uvspec",
-			{
-				"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
-				"stokes": "xx,yy",
-				"axis" : "chan,amp",
-				"device" : "/xs"
-			})
-
-			in_str = "Perform pass " + str(stage) + " of calibration? (0) yes - (1) no "
-			lp = ""
-			
-			while (lp != "0" and lp != "1"):
-				lp = input(in_str)
-
-			# Exit calibration
-			if (lp == "1"):
-				break
-
-			# Perform another flagging pass
-			elif (lp == "0"):
-				self.basic_flagging(self.SETTINGS["working_directory"] + self.PRIMARY_CAL)
-				stage += 1
-			
-		# Perform gain calibration
-		interval = input("Select interval (0.1 = 10 second cycles): ")
-		nfbin = input("Select bin count (splits frequency of observation into chunks i.e. 2048 / 4 = 512Mhz chunks): ")
-
-		miriad_command(
-		"gpcal",
-		{
-			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
-			"interval" : interval,
-			"nfbin" : nfbin,
-			"options" : "xyvary,qusolve"
-		})
-
-		# Display phase plot against time
-		miriad_command(
-		"uvplt",
-		{
-			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
-			"stokes" : "xx,yy",
-			"axis" : "real,imag",
-			"options" : "nofqav,nobase,equal",
-			"device" : "/xs"
-		})
-
-
-		input("Enter to continue")
-
-		# Copy data to secondary cal
-		miriad_command(
-		"gpcopy",
-		{
-			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
-			"out" : self.SETTINGS["working_directory"] + self.SECONDARY_CAL,
-		})
-
-
-	# Phase calibration in preperation of imaging
+	# Phase calibration in preperation of imaging (Stage 2)
 	def phase_calibration(self):
 		
 		print("Beginning phase calibration")
@@ -241,6 +172,77 @@ class BCF(FLAGGING.FLAGGING):
 		print("Bandpass / Flux calibration completed in primary: ", self.PRIMARY_CAL)
 		print("Phase calibration completed in secondary: ", self.SECONDARY_CAL)
 		print("Imaging prepared for: ", self.IMAGE_DATA)
+
+
+	# Calibration of bandpass / flux channels (Stage 1)
+	def bandpass_flux_calibration(self):
+
+		print("Beginning bandpass / flux calibration")
+
+		stage = 1
+		while (1):
+
+			# Preview data
+			miriad_command(
+			"uvspec",
+			{
+				"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
+				"stokes": "xx,yy",
+				"axis" : "chan,amp",
+				"device" : "/xs"
+			})
+
+			in_str = "Perform pass " + str(stage) + " of calibration? (0) yes - (1) no "
+			lp = ""
+			
+			while (lp != "0" and lp != "1"):
+				lp = input(in_str)
+
+			# Exit calibration
+			if (lp == "1"):
+				break
+
+			# Perform another flagging pass
+			elif (lp == "0"):
+				self.basic_flagging(self.SETTINGS["working_directory"] + self.PRIMARY_CAL)
+				stage += 1
+			
+		# Perform gain calibration
+		interval = input("Select interval (0.1 = 10 second cycles): ")
+		nfbin = input("Select bin count (splits frequency of observation into chunks i.e. 2048 / 4 = 512Mhz chunks): ")
+
+		miriad_command(
+		"gpcal",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
+			"interval" : interval,
+			"nfbin" : nfbin,
+			"options" : "xyvary"
+		})
+
+		# Display phase plot against time
+		miriad_command(
+		"uvplt",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
+			"stokes" : "xx,yy",
+			"axis" : "real,imag",
+			"options" : "nofqav,nobase,equal",
+			"device" : "/xs"
+		})
+
+
+		input("Enter to continue")
+
+		# Copy data to secondary cal
+		miriad_command(
+		"gpcopy",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
+			"out" : self.SETTINGS["working_directory"] + self.SECONDARY_CAL,
+		})
+
+
 
 # Contains more advanced calibration methods
 class ACF():

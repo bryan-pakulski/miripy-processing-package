@@ -91,7 +91,8 @@ class menu():
 
 			self.SETTINGS["project_name"] = project_name
 			self.SETTINGS["working_directory"] = wrk_dir
-			self.save_settings()
+		
+		self.save_settings()
 
 
 	# Returns command and options to pass through to miriad

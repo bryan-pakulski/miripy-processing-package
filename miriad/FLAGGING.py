@@ -23,7 +23,8 @@ class FLAGGING():
 			"vis" : vis_source,
 			"stokes" : "xx,yy",
 			"device" : "/xs",
-			"command" : "<b"
+			#"command" : "<b",
+			"options" : "nodisp"
 		})
 
 		miriad_command(
@@ -32,7 +33,8 @@ class FLAGGING():
 			"vis" : vis_source,
 			"stokes" : "yy,xx",
 			"device" : "/xs",
-			"command" : "<b"
+			#"command" : "<b",
+			"options" : "nodisp"
 		})
 
 		# Manually flag RFI data
