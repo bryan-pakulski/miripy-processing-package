@@ -58,23 +58,23 @@ class BIM(FLAGGING.FLAGGING):
 
 					# UP
 					if direction == "\x1b[A":
-						region_y1 += increment
-						region_y2 += increment
+						region_y1 += inc
+						region_y2 += inc
 
 					# DOWN
 					elif direction == "\x1b[B":
-						region_y1 -= increment
-						region_y2 -= increment
+						region_y1 -= inc
+						region_y2 -= inc
 
 					# RIGHT
 					elif direction == "\x1b[C":
-						region_x1 += increment
-						region_x2 += increment
+						region_x1 += inc
+						region_x2 += inc
 
 					# LEFT
 					elif direction == "\x1b[D":
-						region_x1 -= increment
-						region_x2 -= increment
+						region_x1 -= inc
+						region_x2 -= inc
 
 					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
 
