@@ -130,7 +130,7 @@ class BIM(FLAGGING.FLAGGING):
 			while (1):
 
 				im = input("Select subregion to image (0) Yes - (1) No: ")
-
+ 
 				if (im == "1"):
 					break
 				else:
@@ -141,6 +141,23 @@ class BIM(FLAGGING.FLAGGING):
 
 					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
 
+				print("""
+					1: b&w
+                	2: rainbow
+            		3: linear pseudo colour
+                	4: floating zero colour contours
+                	5: fixed zero colour contours
+                	6: rgb
+                	7: background
+                	8: heat
+                	9: absolute b&w
+					10-19: cubehelix (by D. Green, google cubehelix for info)
+            		
+					Negate the table number to reverse the lookup table.
+				""")
+
+				col = input("select color display: ")
+				
 				miriad_command(
 				"cgdisp",
 				{
@@ -149,7 +166,7 @@ class BIM(FLAGGING.FLAGGING):
 					"region" : region,
 					"device" : "/xs",
 					"labtyp" : "hms,dms",
-					"range" : "0,0,log,2",
+					"range" : "0,0,log," + col,
 					"options" : "wedge"
 				})
 			
@@ -159,7 +176,7 @@ class BIM(FLAGGING.FLAGGING):
 			"imfit",
 			{
 				"in" : self.IMAGE_RESTOR,
-				"region" : quarter,
+				"region" : "quarter",
 				"object" : "point",
 				"spar" : "1,0,0",
 				"out" : self.IMAGE_RESIDUAL,
