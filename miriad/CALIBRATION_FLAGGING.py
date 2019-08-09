@@ -215,6 +215,13 @@ class BCF(FLAGGING.FLAGGING):
 				self.basic_flagging(self.SETTINGS["working_directory"] + self.PRIMARY_CAL)
 				stage += 1
 			
+		# Apply changes to bandpass shape
+		miriad_command(
+		"mfcal",
+		{
+			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL
+		})
+
 		# Perform gain calibration
 		interval = input("Select interval (0.1 = 10 second cycles): ")
 		nfbin = input("Select bin count (splits frequency of observation into chunks i.e. 2048 / 4 = 512Mhz chunks): ")
