@@ -25,6 +25,94 @@ class BIM(FLAGGING.FLAGGING):
 		print(calibration_selection)
 
 		self.IMAGE_OUTPUT =  self.IMAGE_OUTPUT + calibration_selection[ input("Enter selection of imaging output_folder (BIMG-X): ") ]
+	
+	# Visualisation modes
+	def image(self):
+		# Image sub areas
+		while (1):
+
+			im = input("Select subregion to image (0) Yes Manual - (1) Yes Interactive - (2) No: ")
+			
+			# Exit sub imaging
+			if (im == "2"):
+				break
+			
+			# Interactive imaging
+			if (im == "1"):
+
+				inc = input("Select increment size (500): ")
+				col = input("select color display (miriad -> cgdisp -> range): ")
+
+				region_x1 = 0
+				region_y1 = 0
+				region_x2 = inc
+				region_y2 = inc
+
+				print("Navigate with arrow keys")
+				while (1):
+					
+					direction = input("(qqq to quit): ")
+
+					if (direction == "qqq"):
+						break
+
+					# UP
+					if direction == "\x1b[A":
+						region_y1 += increment
+						region_y2 += increment
+
+					# DOWN
+					elif direction == "\x1b[B":
+						region_y1 -= increment
+						region_y2 -= increment
+
+					# RIGHT
+					elif direction == "\x1b[C":
+						region_x1 += increment
+						region_x2 += increment
+
+					# LEFT
+					elif direction == "\x1b[D":
+						region_x1 -= increment
+						region_x2 -= increment
+
+					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
+
+					miriad_command(
+					"cgdisp",
+					{
+						"in" : self.IMAGE_RESTOR,
+						"type" : "p",
+						"region" : region,
+						"device" : "/xs",
+						"labtyp" : "hms,dms",
+						"range" : "0,0,log," + col,
+						"options" : "wedge"
+					})
+
+			# Manual region selection		
+			if (im == "0"):
+				region_x1 = input("Enter region x1: ")
+				region_y1 = input("Enter region y1: ")
+				region_x2 = input("Enter region x2: ")
+				region_y2 = input("Enter region y2: ")
+
+				region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
+
+				col = input("select color display (miriad -> cgdisp -> range): ")
+				
+				miriad_command(
+				"cgdisp",
+				{
+					"in" : self.IMAGE_RESTOR,
+					"type" : "p",
+					"region" : region,
+					"device" : "/xs",
+					"labtyp" : "hms,dms",
+					"range" : "0,0,log," + col,
+					"options" : "wedge"
+				})
+			
 
 	def process(self):
 		
@@ -126,50 +214,9 @@ class BIM(FLAGGING.FLAGGING):
 				"options" : "grid,wedge"
 			})
 
-			# Image sub areas
-			while (1):
+			# Visualise data
+			self.image()
 
-				im = input("Select subregion to image (0) Yes - (1) No: ")
- 
-				if (im == "1"):
-					break
-				else:
-					region_x1 = input("Enter region x1: ")
-					region_y1 = input("Enter region y1: ")
-					region_x2 = input("Enter region x2: ")
-					region_y2 = input("Enter region y2: ")
-
-					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
-
-				print("""
-					1: b&w
-                	2: rainbow
-            		3: linear pseudo colour
-                	4: floating zero colour contours
-                	5: fixed zero colour contours
-                	6: rgb
-                	7: background
-                	8: heat
-                	9: absolute b&w
-					10-19: cubehelix (by D. Green, google cubehelix for info)
-            		
-					Negate the table number to reverse the lookup table.
-				""")
-
-				col = input("select color display: ")
-				
-				miriad_command(
-				"cgdisp",
-				{
-					"in" : self.IMAGE_RESTOR,
-					"type" : "p",
-					"region" : region,
-					"device" : "/xs",
-					"labtyp" : "hms,dms",
-					"range" : "0,0,log," + col,
-					"options" : "wedge"
-				})
-			
 			# Measure flux density
 			print("Measuring flux density of source")
 			miriad_command(
