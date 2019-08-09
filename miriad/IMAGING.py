@@ -43,6 +43,8 @@ class BIM(FLAGGING.FLAGGING):
 
 	# Visualisation modes
 	def image(self):
+		region = ""
+
 		# Image sub areas
 		while (1):
 
@@ -127,7 +129,8 @@ class BIM(FLAGGING.FLAGGING):
 
 				col = input("select color display (miriad -> cgdisp -> range): ")
 				self.cgdisp(region, col)
-			
+		
+		return region
 
 	def process(self):
 		
@@ -156,7 +159,7 @@ class BIM(FLAGGING.FLAGGING):
 						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".ibeam"
 						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".imodel"
 						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".irestor"
-						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".iresidual"
+						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".ires"
 
 			except QUIT:
 				break
@@ -229,8 +232,8 @@ class BIM(FLAGGING.FLAGGING):
 				"options" : "grid,wedge"
 			})
 
-			# Visualise data
-			self.image()
+			# Visualise data, returns img coordinates for imfit
+			region = self.image()
 
 			# Measure flux density
 			print("Measuring flux density of source")
@@ -238,7 +241,7 @@ class BIM(FLAGGING.FLAGGING):
 			"imfit",
 			{
 				"in" : self.IMAGE_RESTOR,
-				"region" : "quarter",
+				"region" : region,
 				"object" : "point",
 				"spar" : "1,0,0",
 				"out" : self.IMAGE_RESIDUAL,
