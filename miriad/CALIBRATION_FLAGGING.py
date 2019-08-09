@@ -37,7 +37,7 @@ class BCF(FLAGGING.FLAGGING):
 
 		# Create subfolder for imaging, increment ID by + 1 if another folder exists
 		i = 0
-		while os.path.exists(self.IMAGE_DATA+"-BIMG-%s" % i):
+		while os.path.exists(self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-BIMG-%s" % i):
 			i += 1
 
 		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-BIMG-" + str(i) + "/"
@@ -89,6 +89,7 @@ class BCF(FLAGGING.FLAGGING):
 		"uvaver",
 		{
 			"vis" : self.SETTINGS["working_directory"] + self.IMAGE_DATA,
+			"stokes" : "xx,yy",
 			"out" : self.IMAGE_OUTPUT + "img.uvav"
 		})
 
@@ -147,7 +148,7 @@ class BCF(FLAGGING.FLAGGING):
 			"vis" : self.SETTINGS["working_directory"] + self.PRIMARY_CAL,
 			"interval" : interval,
 			"nfbin" : nfbin,
-			"options" : "xyvary"
+			"options" : "xyvary,qusolve"
 		})
 
 		# Display phase plot against time
@@ -216,7 +217,7 @@ class BCF(FLAGGING.FLAGGING):
 			"vis" : self.SETTINGS["working_directory"] + self.SECONDARY_CAL,
 			"interval" : interval,
 			"nfbin" : nfbin,
-			"options" : "xyvary"
+			"options" : "xyvary,qusolve"
 		})
 
 		# Check that scaling factors were applied correctly

@@ -66,6 +66,7 @@ class BIM(FLAGGING.FLAGGING):
 				"vis" : self.IMAGE_CHOICE,
 				"map" : self.IMAGE_MAP,
 				"beam" : self.IMAGE_BEAM,
+				"imsize" : "3,3,beam",
 				"robust" : robust,
 				"stokes" : "i",
 				"options" : "mfs,double"
@@ -78,9 +79,10 @@ class BIM(FLAGGING.FLAGGING):
 			{
 				"in" : self.IMAGE_MAP,
 				"type" : "p",
+				"region" : "images",
 				"device" : "/xs",
 				"labtyp" : "hms,dms",
-				"options" : "grid,wedge"
+				"options" : "wedge"
 			})
 			input("Press Enter to continue")
 
@@ -116,9 +118,10 @@ class BIM(FLAGGING.FLAGGING):
 			{
 				"in" : self.IMAGE_RESTOR,
 				"type" : "p",
+				"region" : "images",
 				"device" : "/xs",
 				"labtyp" : "hms,dms",
-				"range" : "0,40,log,2",
+				"range" : "0,0,log,2",
 				"options" : "grid,wedge"
 			})
 			input("")
