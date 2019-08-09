@@ -53,6 +53,7 @@ class BIM(FLAGGING.FLAGGING):
 						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".ibeam"
 						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".imodel"
 						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".irestor"
+						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".iresidual"
 
 			except QUIT:
 				break
@@ -124,7 +125,46 @@ class BIM(FLAGGING.FLAGGING):
 				"range" : "0,0,log,2",
 				"options" : "grid,wedge"
 			})
-			input("")
+
+			# Image sub areas
+			while (1):
+
+				im = input("Select subregion to image (0) Yes - (1) No")
+
+				if (im == "1"):
+					break
+				else:
+					region_x1 = input("Enter region x1: ")
+					region_y1 = input("Enter region y1: ")
+					region_x2 = input("Enter region x2: ")
+					region_y2 = input("Enter region y2: ")
+
+					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
+
+				miriad_command(
+				"cgdisp",
+				{
+					"in" : self.IMAGE_RESTOR,
+					"type" : "p",
+					"region" : region,
+					"device" : "/xs",
+					"labtyp" : "hms,dms",
+					"range" : "0,0,log,2",
+					"options" : "wedge"
+				})
+			
+			# Measure flux density
+			print("Measuring flux density of source")
+			miriad_command(
+			"imfit",
+			{
+				"in" : self.IMAGE_RESTOR,
+				"region" : quarter,
+				"object" : "point",
+				"spar" : "1,0,0",
+				"out" : self.IMAGE_RESIDUAL,
+				"options" : "residual"
+			})
 
 
 
