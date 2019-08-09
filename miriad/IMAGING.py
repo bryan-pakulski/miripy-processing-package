@@ -1,5 +1,6 @@
 from . import *
 from . import FLAGGING
+import curses
 
 # Exception class for nested while escape
 class QUIT( Exception ): pass
@@ -26,6 +27,20 @@ class BIM(FLAGGING.FLAGGING):
 
 		self.IMAGE_OUTPUT =  self.IMAGE_OUTPUT + calibration_selection[ input("Enter selection of imaging output_folder (BIMG-X): ") ]
 	
+	# Display image
+	def cgdisp(self, region, col):
+		miriad_command(
+		"cgdisp",
+		{
+			"in" : self.IMAGE_RESTOR,
+			"type" : "p",
+			"region" : region,
+			"device" : "/xs",
+			"labtyp" : "hms,dms",
+			"range" : "0,0,log," + col,
+			"options" : "wedge"
+		})
+
 	# Visualisation modes
 	def image(self):
 		# Image sub areas
@@ -40,7 +55,7 @@ class BIM(FLAGGING.FLAGGING):
 			# Interactive imaging
 			if (im == "1"):
 
-				inc = input("Select increment size (500): ")
+				inc = int(input("Select increment size (500): "))
 				col = input("select color display (miriad -> cgdisp -> range): ")
 
 				region_x1 = 0
@@ -48,7 +63,15 @@ class BIM(FLAGGING.FLAGGING):
 				region_x2 = inc
 				region_y2 = inc
 
-				print("Navigate with arrow keys")
+				self.cgdisp(region, col)
+
+				print("Entering interactive mode, arrows keys to navigate, q to exit")
+
+				screen = curses.initscr()
+				curses.noecho()
+				curses.cbreak()
+				screen.keypad(True)
+
 				while (1):
 					
 					direction = input("(qqq to quit): ")
@@ -76,19 +99,8 @@ class BIM(FLAGGING.FLAGGING):
 						region_x1 -= inc
 						region_x2 -= inc
 
-					region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
-
-					miriad_command(
-					"cgdisp",
-					{
-						"in" : self.IMAGE_RESTOR,
-						"type" : "p",
-						"region" : region,
-						"device" : "/xs",
-						"labtyp" : "hms,dms",
-						"range" : "0,0,log," + col,
-						"options" : "wedge"
-					})
+					region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
+					self.cgdisp(region, col)
 
 			# Manual region selection		
 			if (im == "0"):
@@ -97,21 +109,10 @@ class BIM(FLAGGING.FLAGGING):
 				region_x2 = input("Enter region x2: ")
 				region_y2 = input("Enter region y2: ")
 
-				region = "boxes(" + region_x1 + "," + region_y1 + "," + region_x2 + "," + region_y2 + ")"
+				region = "boxes(%i,%i,%i,%i)" % (region_x1, region_y1, region_x2, region_y2)
 
 				col = input("select color display (miriad -> cgdisp -> range): ")
-				
-				miriad_command(
-				"cgdisp",
-				{
-					"in" : self.IMAGE_RESTOR,
-					"type" : "p",
-					"region" : region,
-					"device" : "/xs",
-					"labtyp" : "hms,dms",
-					"range" : "0,0,log," + col,
-					"options" : "wedge"
-				})
+				self.cgdisp(region, col)
 			
 
 	def process(self):
