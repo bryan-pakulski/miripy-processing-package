@@ -129,7 +129,7 @@ class BIM(FLAGGING.FLAGGING):
 			# Image sub areas
 			while (1):
 
-				im = input("Select subregion to image (0) Yes - (1) No")
+				im = input("Select subregion to image (0) Yes - (1) No: ")
 
 				if (im == "1"):
 					break
