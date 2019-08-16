@@ -237,12 +237,13 @@ class BIM(FLAGGING.FLAGGING):
 
 			# Measure flux density
 			print("Measuring flux density of source")
+			obj = input("Select object type (level, gaussian, disk, point, beam): ")
 			miriad_command(
 			"imfit",
 			{
 				"in" : self.IMAGE_RESTOR,
 				"region" : region,
-				"object" : "point",
+				"object" : obj,
 				"spar" : "1,0,0",
 				"out" : self.IMAGE_RESIDUAL,
 				"options" : "residual"
@@ -329,7 +330,7 @@ class AIM():
 						#### NEW DATA FROM ADVANCED IMAGING #####
 						self.IMAGE_ADVANCED_MAP = self.IMAGE_CHOICE + ".a.imap"
 						self.IMAGE_ADVANCED_BEAM = self.IMAGE_CHOICE + ".a.ibeam"
-						self.IMAGE_ADVANCED_MODEL = self.IMAGE_CHOICE + ".a.imodel"
+						self.IMAGE_ADVANCED_MODEL = self.IMAGE_CHOICE + ".a.imod"
 						self.IMAGE_ADVANCED_RESTOR = self.IMAGE_CHOICE + ".a.ires"
 						self.IMAGE_ADVANCED_RESIDUAL = self.IMAGE_CHOICE + ".a.iris"
 
