@@ -37,10 +37,10 @@ class BCF(FLAGGING.FLAGGING):
 
 		# Create subfolder for imaging, increment ID by + 1 if another folder exists
 		i = 0
-		while os.path.exists(self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-BIMG-%s" % i):
+		while os.path.exists(self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-IM-%s" % i):
 			i += 1
 
-		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-BIMG-" + str(i) + "/"
+		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"] + self.IMAGE_DATA + "-IM-" + str(i) + "/"
 		os.mkdir(self.IMAGE_OUTPUT)
 		
 		# Average gain solutions

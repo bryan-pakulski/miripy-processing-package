@@ -155,11 +155,11 @@ class BIM(FLAGGING.FLAGGING):
 						raise QUIT
 					else:
 						self.IMAGE_CHOICE = self.IMAGE_OUTPUT + "/" + image_selection[image_choice] 
-						self.IMAGE_MAP = self.IMAGE_CHOICE + ".imap"
-						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".ibeam"
-						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".imodel"
-						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".irestor"
-						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".ires"
+						self.IMAGE_MAP = self.IMAGE_CHOICE + ".mp"
+						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".bm"
+						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".md"
+						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".rst"
+						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".rsd"
 
 			except QUIT:
 				break
@@ -323,16 +323,22 @@ class AIM():
 					else:
 						self.IMAGE_CHOICE = self.IMAGE_OUTPUT + "/" + image_selection[image_choice] 
 
+						self.IMAGE_MAP = self.IMAGE_CHOICE + ".mp"
+						self.IMAGE_BEAM = self.IMAGE_CHOICE + ".bm"
+						self.IMAGE_MODEL = self.IMAGE_CHOICE + ".md"
+						self.IMAGE_RESTOR = self.IMAGE_CHOICE + ".rst"
+						self.IMAGE_RESIDUAL = self.IMAGE_CHOICE + ".rsd"
+
 						#### OLD DATA FROM BASIC IMAGING ####
-						self.IMAGE_BASIC_RESTOR = self.IMAGE_CHOICE + ".irestor"
-						self.IMAGE_BASIC_RESIDUAL = self.IMAGE_CHOICE + ".ires"
+						self.IMAGE_BASIC_RESTOR = self.IMAGE_CHOICE + ".rst"
+						self.IMAGE_BASIC_RESIDUAL = self.IMAGE_CHOICE + ".rsd"
 
 						#### NEW DATA FROM ADVANCED IMAGING #####
-						self.IMAGE_ADVANCED_MAP = self.IMAGE_CHOICE + ".a.imap"
-						self.IMAGE_ADVANCED_BEAM = self.IMAGE_CHOICE + ".a.ibeam"
-						self.IMAGE_ADVANCED_MODEL = self.IMAGE_CHOICE + ".a.imod"
-						self.IMAGE_ADVANCED_RESTOR = self.IMAGE_CHOICE + ".a.ires"
-						self.IMAGE_ADVANCED_RESIDUAL = self.IMAGE_CHOICE + ".a.iris"
+						self.IMAGE_ADVANCED_MAP = self.IMAGE_CHOICE + ".Amp"
+						self.IMAGE_ADVANCED_BEAM = self.IMAGE_CHOICE + ".Abm"
+						self.IMAGE_ADVANCED_MODEL = self.IMAGE_CHOICE + ".Amd"
+						self.IMAGE_ADVANCED_RESTOR = self.IMAGE_CHOICE + ".Arst"
+						self.IMAGE_ADVANCED_RESIDUAL = self.IMAGE_CHOICE + ".Arsd"
 
 			except QUIT:
 				break
