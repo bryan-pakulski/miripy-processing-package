@@ -20,16 +20,7 @@ while (1):
 
 	elif (choice == "3"):
 		
-		fc = ""
-
-		while (fc != "0" and fc != "1"):
-			fc = input("(0) Begin Basic Calibration or (1) Advanced Calibration: ")
-		
-		if (fc == "0"):
-			cf = M_CF.BCF(main_menu.SETTINGS)
-		else:
-			cf = M_CD.ACF(main_menu.SETTINGS)
-
+		cf = M_CF.BCF(main_menu.SETTINGS)
 		cf.process()
 	
 	elif (choice == "4"):
