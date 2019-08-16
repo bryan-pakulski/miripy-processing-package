@@ -228,7 +228,7 @@ class BIM(FLAGGING.FLAGGING):
 				"region" : "images",
 				"device" : "/xs",
 				"labtyp" : "hms,dms",
-				"range" : "0,0,log,2",
+				"range" : "0,0,log,0",
 				"options" : "grid,wedge"
 			})
 
@@ -248,6 +248,17 @@ class BIM(FLAGGING.FLAGGING):
 				"options" : "residual"
 			})
 
+			# Display distribution of flux
+			input("Press <Enter> to measure flux distribution: ")
+			miriad_command(
+			"imhist",
+			{
+				"in" : self.IMAGE_RESIDUAL,
+				"region": region,
+				"options" : "nbin,100",
+				"device" : "/xs"
+			})
+
 
 
 # Advanced imaging class
@@ -256,8 +267,10 @@ class AIM():
 	def __init__(self, settings):
 
 		self.SETTINGS = settings
+		self.IMAGE_OUTPUT = self.SETTINGS["working_directory"]
 
 		print("Initialising advanced imaging")
+		print("Please make sure to have completed basic imaging on the target before performing this function")
 		
 		# Select calibration datasets
 		calibration_selection = {}
@@ -269,7 +282,154 @@ class AIM():
 
 		print(calibration_selection)
 
-		self.IMAGE_DATA = calibration_selection[ input("Enter selection of prepared imaging dataset: ") ]
+		self.IMAGE_OUTPUT =  self.IMAGE_OUTPUT + calibration_selection[ input("Enter selection of imaging output_folder (BIMG-X): ") ]
+
+	# Display image
+	def cgdisp(self, image, region, col):
+		miriad_command(
+		"cgdisp",
+		{
+			"in" : image,
+			"type" : "p",
+			"region" : region,
+			"device" : "/xs",
+			"labtyp" : "hms,dms",
+			"range" : "0,0,log," + col,
+			"options" : "wedge, unequal"
+		})
 
 	def process(self):
-		pass
+		
+		while(1):
+			
+			# Select frequency to image
+			image_choice = ""
+			
+			i = 0
+			image_selection = {}
+			for f in os.listdir(self.IMAGE_OUTPUT):
+				image_selection[str(i)] = f
+				i += 1
+
+			print(image_selection)
+
+			try:
+				while (image_choice == ""):
+					image_choice = input("Enter frequency range to image, qqq to quit: ")
+
+					if (image_choice == "qqq"):
+						raise QUIT
+					else:
+						self.IMAGE_CHOICE = self.IMAGE_OUTPUT + "/" + image_selection[image_choice] 
+
+						#### OLD DATA FROM BASIC IMAGING ####
+						self.IMAGE_BASIC_RESTOR = self.IMAGE_CHOICE + ".irestor"
+						self.IMAGE_BASIC_RESIDUAL = self.IMAGE_CHOICE + ".ires"
+
+						#### NEW DATA FROM ADVANCED IMAGING #####
+						self.IMAGE_ADVANCED_MAP = self.IMAGE_CHOICE + ".a.imap"
+						self.IMAGE_ADVANCED_BEAM = self.IMAGE_CHOICE + ".a.ibeam"
+						self.IMAGE_ADVANCED_MODEL = self.IMAGE_CHOICE + ".a.imodel"
+						self.IMAGE_ADVANCED_RESTOR = self.IMAGE_CHOICE + ".a.ires"
+						self.IMAGE_ADVANCED_RESIDUAL = self.IMAGE_CHOICE + ".a.iris"
+
+			except QUIT:
+				break
+
+			# Determine size of image made with imlist
+			print("Determining size of imlist image in pixels")
+			miriad_command(
+			"imlist",
+			{
+				"in" : self.IMAGE_BASIC_RESTOR,
+				"options" : "statistics"
+			})
+
+			# Determine pixel size
+			print("Determening absolute pixel / arc references")
+			miriad_command(
+			"impos",
+			{
+				"in" : self.IMAGE_BASIC_RESTOR,
+				"coord" : "1,1",
+				"type" : "abspix"
+			})
+
+			print("Please enter image information from above output...")
+
+			ix = float(input("Enter image X Size: "))
+			iy = float(input("Enter image Y Size: "))
+			px = float(input("Enter pixel X reference: "))
+			py = float(input("Enter pixel Y reference: "))
+			ax = float(input("Enter ARC X reference: "))
+			ay = float(input("Enter ARC Y reference: "))
+
+			# Perform invert to make image with a 3x size beam
+			miriad_command(
+			"invert",
+			{
+				"vis" : self.IMAGE_CHOICE,
+				"map" : self.IMAGE_ADVANCED_MAP,
+				"beam" : self.IMAGE_ADVANCED_BEAM,
+				"imsize" : str(ix*3) + "," + str(iy*3),
+				"cell" : str(ax/px) + "," + str(ay/py),
+				"sup" : "0",
+				"stokes" : "i",
+				"options" : "mfs,sdb"
+			})
+
+			# Look at dirty map
+			print("Displaying dirty map")
+			self.cgdisp(self.IMAGE_ADVANCED_MAP, "", "")
+
+			# Clean image
+			print("Deconvolving image...")
+			cutoff = input("Enter absoluate cutoff value for amplitude (i.e. 4e-5): ")
+			niters = input("Enter n iterations: ")
+			miriad_command(
+			"mfclean",
+			{
+				"map" : self.IMAGE_ADVANCED_MAP,
+				"beam" : self.IMAGE_ADVANCED_BEAM,
+				"out" : self.IMAGE_ADVANCED_MODEL,
+				"cutoff" : cutoff,
+				"niters" : niters,
+				"region" : "relcenter,boxes(-%f,-%f,%f,%f)" % (px, py, px, py)
+			})
+
+			# Create image from model
+			miriad_command(
+			"restor",
+			{
+				"model" : self.IMAGE_ADVANCED_MODEL,
+				"beam" : self.IMAGE_ADVANCED_BEAM,
+				"map" : self.IMAGE_ADVANCED_MAP,
+				"out" : self.IMAGE_ADVANCED_RESTOR
+			})
+
+			# Preview cleaned image
+			print("Previewing cleaned image")
+			self.cgdisp(self.IMAGE_ADVANCED_RESTOR, "", "")
+
+			# Measure flux density
+			print("Measuring flux density of source")
+			miriad_command(
+			"imfit",
+			{
+				"in" : self.IMAGE_ADVANCED_RESTOR,
+				"object" : "point",
+				"spar" : "1,0,0",
+				"out" : self.IMAGE_ADVANCED_RESIDUAL,
+				"options" : "residual"
+			})
+
+			# Display distribution of flux
+			input("Press <Enter> to measure flux distribution: ")
+			miriad_command(
+			"imhist",
+			{
+				"in" : self.IMAGE_ADVANCED_RESIDUAL,
+				"region": "relcenter,boxes(-11,-16,18,13)",
+				"options" : "nbin,100",
+				"device" : "/xs"
+			})
